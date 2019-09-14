@@ -1,0 +1,23 @@
+### Django ###
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+media
+
+### Django.Python Stack ###
+# Byte-compiled / optimized / DLL files
+*.py[cod]
+*$py.class
+
+# Django stuff:
+db.sqlite3-journal
+
+# pyenv
+.python-version
+Pipfile.lock
+
+### My files ###
+info.txt
