@@ -1,21 +1,25 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import UserSignUpFor, UserUpdateForm, ProfileUpdateForm
+from .forms import UserSignUpForm, UserUpdateForm, ProfileUpdateForm
+
+from django.contrib.auth.views import LoginView, LogoutView
 
 # Create your views here.
 
 def signup_view(request):
     template_name = 'users/signup.html'
+    if request.user.is_authenticated and not request.user.is_superuser:
+        return redirect('users-profile')
     if request.method == 'POST':
-        form = UserSignUpFor(request.POST)
+        form = UserSignUpForm(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
             messages.success(request, 'Your account has been created! You are now able to log in.')
             return redirect('users-login')
     else:
-        form = UserSignUpFor()
+        form = UserSignUpForm()
     context = {
         'title': 'Signup',
         'form': form
@@ -43,3 +47,19 @@ def profile_view(request):
         'p_form': p_form
     }
     return render(request, 'users/profile.html', context)
+
+
+class LoginView(LoginView):
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return super(LoginView, self).dispatch(request, *args, **kwargs)
+        return redirect('users-profile')
+
+
+class LogoutView(LogoutView):
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            return super(LogoutView, self).dispatch(request, *args, **kwargs)
+        return redirect('users-login')
