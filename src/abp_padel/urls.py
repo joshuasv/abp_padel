@@ -29,6 +29,7 @@ urlpatterns = [
     path('login/', LoginView.as_view(template_name='users/login.html'), name='users-login'),
     path('logout/', LogoutView.as_view(template_name='users/logout.html'), name='users-logout'),
     path('profile/', profile_view, name='users-profile'),
+    path('pista/', include('pistas.urls')),
 
 ]
 

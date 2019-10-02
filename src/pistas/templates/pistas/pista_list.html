@@ -1,0 +1,13 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+  {% for pista in pistas %}
+  <article class="media content-section">
+    <div class="media-body">  
+      <h2><a class="article-title" href="{% url 'pista-detail' pista.id %}">{{ pista.nombre }}</a></h2>
+      <p class="article-content">Hora apertura: {{ pista.hora_apertura }}</p>
+      <p class="article-content">Hora cierre: {{ pista.hora_cierre }}</p>
+    </div>
+  </article>
+  {% endfor %}
+{% endblock %}

@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     # users
     'users.apps.UsersConfig',
 
+    # pistas
+    'pistas.apps.PistasConfig',
+
     #forms
     'crispy_forms',
 ]
