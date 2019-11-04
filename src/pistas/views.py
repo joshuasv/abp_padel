@@ -11,9 +11,6 @@ from .models import Pista
 
 # Create your views here.
 
- # ¡¡IMPORTANTE!! Añadir las comprobaciones de usuario
-
-
 class PistaListView(LoginRequiredMixin, ListView):
     model = Pista
     # template_name = 'pista/pistas.html'

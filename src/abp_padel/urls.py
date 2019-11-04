@@ -16,7 +16,6 @@ Including another URLconf
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.auth import views as auth_views
 from django.urls import path, include
 
 from users.views import signup_view, profile_view, LoginView, LogoutView
@@ -30,6 +29,7 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(template_name='users/logout.html'), name='users-logout'),
     path('profile/', profile_view, name='users-profile'),
     path('pista/', include('pistas.urls')),
+    path('reserva/', include('reservas.urls')),
 
 ]
 

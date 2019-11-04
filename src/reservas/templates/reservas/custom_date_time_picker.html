@@ -1,0 +1,59 @@
+{% load crispy_forms_field %}
+<div class="form-group">
+  <label for="id_hora_inicio" class="col-form-label requiredfield">Hora inicio*</label>
+  <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
+    {% crispy_field field 'class' 'form-control datetimepicker-input' 'data-target' '#datetimepicker1' %}
+    <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker" id="id_datetimepicker1">
+      <div class="input-group-text">
+        <i class="fa fa-calendar"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  // Inicializa el datetimepicker Boostrap
+  $("#datetimepicker1").datetimepicker({
+    format: 'DD-MM-YYYY HH:mm',
+    date: new Date(),
+    minDate: new Date()
+  });
+
+  // Pone valor inicial a hora_fin
+  $(document).ready(function() {
+    set_hora_fin($('#datetimepicker1').datetimepicker('date'));
+
+    $("#id_hora_inicio").on("click", function() {
+        $("#id_datetimepicker1").click();
+    });
+
+  });
+
+  // Evento que se ejecuta cada vez que cambia el valor del datetimepicker
+  $("#datetimepicker1").on("change.datetimepicker", function (e) {
+    set_hora_fin(e.date)
+  });
+
+  function set_hora_fin(hora_inicio)
+  {
+    // Transforma el parámentro en un objeto tipo Date
+    var date_hora_inicio = new Date(hora_inicio)
+    // Suma a la hora de inicio 90 minutos (TIEMPO FIJO RESERVA)
+    var hora_fin = new Date(date_hora_inicio.getTime() + 90 * 60000)
+    // Formatear hora_fin en DD-MM-YYYY HH:mm
+    hora_fin_format = [hora_fin.getDate().padLeft(),
+               (hora_fin.getMonth()+1).padLeft(),
+               hora_fin.getFullYear()].join('-') +' ' +
+              [hora_fin.getHours().padLeft(),
+               hora_fin.getMinutes().padLeft()].join(':');
+    // Muestra el nuevo tiempo calculado en el field que no es editable.
+    document.getElementById('id_hora_fin').value = hora_fin_format.toString()
+  }
+
+  // Función para añadir padding de 0 a la izquierda de los números de una sola cifra
+  Number.prototype.padLeft = function(base,chr){
+      var  len = (String(base || 10).length - String(this).length)+1;
+      return len > 0? new Array(len).join(chr || '0')+this : this;
+  }
+</script>

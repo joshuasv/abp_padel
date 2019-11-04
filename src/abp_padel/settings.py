@@ -47,6 +47,9 @@ INSTALLED_APPS = [
     # pistas
     'pistas.apps.PistasConfig',
 
+    # reservas
+    'reservas.apps.ReservasConfig',
+
     #forms
     'crispy_forms',
 ]
@@ -146,3 +149,8 @@ LOGIN_URL = 'users-login'
 # EMAIL_USE_TLS = True
 # EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
 # EMAIL_HOST_PASS = os.environ.get('EMAIL_PASS')
+from django.contrib.messages import constants as messages
+
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger',
+}

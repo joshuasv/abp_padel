@@ -1,0 +1,13 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+  {% for reserva in reservas %}
+  <article class="media content-section">
+    <div class="media-body">
+      <h2><a class="article-title" href="{% url 'reserva-detail' reserva.id %}">Reserva hecha por: {{ reserva.usuario }}</a></h2>
+      <p class="article-content">Pista: {{ reserva.pista.nombre }}</p>
+      <p class="article-content">Hora inicio: {{ reserva.hora_inicio }}</p>
+    </div>
+  </article>
+  {% endfor %}
+{% endblock %}
