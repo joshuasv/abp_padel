@@ -1,6 +1,10 @@
+from datetime import datetime, timedelta
+
 from django.shortcuts import render, redirect, reverse
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.utils import timezone
+from django.http import HttpResponseRedirect
 from django.views.generic import (
     ListView,
     DetailView,
@@ -8,12 +12,9 @@ from django.views.generic import (
     UpdateView,
     DeleteView
 )
+
 from .models import Reserva
 from .forms import ReservaCreateModelForm
-from datetime import datetime, timedelta
-from django.utils import timezone
-from django.http import HttpResponseRedirect
-
 
 
 class ReservaListView(LoginRequiredMixin, ListView):
@@ -23,11 +24,9 @@ class ReservaListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         if not self.request.user.is_superuser:
-            return Reserva.objects.filter(usuario=self.request.user).order_by('-hora_inicio')
+            return Reserva.get_reservas_activas(self.request.user).order_by('hora_inicio')
         else:
-            return Reserva.objects.all().order_by('-hora_inicio')
-
-
+            return Reserva.objects.all().order_by('hora_inicio')
 
 
 class ReservaDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
@@ -37,21 +36,18 @@ class ReservaDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         return (self.request.user == self.get_object().usuario) or self.request.user.is_superuser
 
 
-
 class ReservaCreateView(LoginRequiredMixin, CreateView):
     model = Reserva
     form_class = ReservaCreateModelForm
     template_name = 'reservas/reserva_form.html'
 
-
     def form_valid(self, form):
-        # Comprueba que un usuario (no admin) no tenga más de 5 reservas activas.
-        if((not self.request.user.is_superuser) and (len(Reserva.objects.filter(usuario=self.request.user)) >= 5)):
+        if((not self.request.user.is_superuser) and (len(Reserva.get_reservas_activas(self.request.user)) >= 5)):
             messages.error(self.request, "Límite de reservas alcanzado! (5)")
             return redirect('reserva-list')
         else:
             form.instance.usuario = self.request.user
-            return super().form_valid(form)
+        return super().form_valid(form)
 
 
 class ReservaUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):

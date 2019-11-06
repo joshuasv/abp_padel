@@ -1,11 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import UserSignUpForm, UserUpdateForm, ProfileUpdateForm
-
 from django.contrib.auth.views import LoginView, LogoutView
 
-# Create your views here.
+from .forms import UserSignUpForm, UserUpdateForm, ProfileUpdateForm
+
 
 def signup_view(request):
     template_name = 'users/signup.html'
@@ -25,7 +24,6 @@ def signup_view(request):
         'form': form
     }
     return render(request, template_name, context)
-
 
 @login_required
 def profile_view(request):

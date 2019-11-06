@@ -7,9 +7,9 @@ from django.views.generic import (
     UpdateView,
     DeleteView
 )
+
 from .models import Pista
 
-# Create your views here.
 
 class PistaListView(LoginRequiredMixin, ListView):
     model = Pista
@@ -22,14 +22,14 @@ class PistaDetailView(LoginRequiredMixin, DetailView):
 
 class PistaCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Pista
-    fields = ['nombre', 'hora_apertura', 'hora_cierre']
+    fields = ['nombre', 'cubierta', 'pavimento', 'hora_apertura', 'hora_cierre']
 
     def test_func(self):
         return self.request.user.is_superuser
 
 class PistaUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Pista
-    fields = ['nombre', 'hora_apertura', 'hora_cierre']
+    fields = ['nombre', 'cubierta', 'pavimento', 'hora_apertura', 'hora_cierre']
 
     def test_func(self):
         return self.request.user.is_superuser

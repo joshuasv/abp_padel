@@ -37,21 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    #blog
-    'blog.apps.BlogConfig',
-
-    # users
-    'users.apps.UsersConfig',
-
-    # pistas
-    'pistas.apps.PistasConfig',
-
-    # reservas
-    'reservas.apps.ReservasConfig',
-
-    #forms
-    'crispy_forms',
+    'blog.apps.BlogConfig', #blog
+    'users.apps.UsersConfig', # users
+    'pistas.apps.PistasConfig', # pistas
+    'reservas.apps.ReservasConfig', # reservas
+    'crispy_forms', #forms
 ]
 
 MIDDLEWARE = [
@@ -119,9 +109,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Madrid'
 
 USE_I18N = True
 
@@ -143,12 +133,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 LOGIN_REDIRECT_URL = 'blog-home'
 LOGIN_URL = 'users-login'
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
-# EMAIL_HOST_PASS = os.environ.get('EMAIL_PASS')
+AUTH_USER_MODEL = 'users.User'
+
 from django.contrib.messages import constants as messages
 
 MESSAGE_TAGS = {
