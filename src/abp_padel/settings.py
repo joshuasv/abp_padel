@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig', # users
     'pistas.apps.PistasConfig', # pistas
     'reservas.apps.ReservasConfig', # reservas
+    'campeonatos.apps.CampeonatosConfig', # campeonatos
     'crispy_forms', #forms
 ]
 

@@ -1,0 +1,86 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+
+  <article class="media content-section">
+    <div class="media-body">
+      <h2 class="article-title">{{ object.nombre }}</h2>
+      <p class="article-content">Fecha inicio: {{ object.inicio_campeonato }}</p>
+      <p class="article-content">Fin inscripciones: {{ object.fin_inscripciones }}</p>
+      <hr/>
+      <form method="post" action="{% url 'campeonato-inscripcion' object.id %}">
+        {% csrf_token %}
+        {% for normativa in normativas %}
+          <input type="radio" name="normativa" id="normativa{{ forloop.counter }}" value="{{ normativa.id }}">
+          <label for="normativa{{ forloop.counter }}">Categoria: {{ normativa.get_categoria_display }}</label>
+          <label for="normativa{{ forloop.counter }}">Nivel: {{ normativa.get_nivel_display }}</label>
+          <hr/>
+        {% endfor %}
+          <p class="article-content">Parejas en las que eres capitán:</p>
+        {% if not parejas %}
+          <p class="article-content">Ninguna</p>
+        {% else %}
+          <select class="btn" name="parejas" required=true>
+            {% for pareja in parejas %}
+              <option value="{{ pareja.id }}">C: {{ pareja.capitan }}--M: {{ pareja.miembro }}</option>
+            {% endfor %}
+          </select>
+          <a class="btn btn-outline-secondary float-right" href="#">Nueva Pareja</a>
+        {% endif %}
+        <hr/>
+        <button type="submit" class="btn btn-outline-info float-right">Inscribirse</button>
+      </form>
+
+      <form method="post" id="desinscribirse_form" action="{% url 'campeonato-desinscripcion' object.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="pareja_placeholder">
+        <button type="submit" class="btn btn-outline-danger">Desinscribirse</button>
+      </form>
+      
+    </div>
+  </article>
+
+
+<script>
+
+$( document ).ready(function() {
+  pareja_id = $('select').val()
+  set_radio_button(pareja_id)
+  // Settear el valor del hidden input del form Desinscribirse
+  $('input[name=pareja_placeholder]').val(pareja_id)
+
+});
+
+$('select').on('change', function() {
+  pareja_id = this.value
+  set_radio_button(pareja_id)
+  // Settear el valor del hidden input del form Desinscribirse
+  $('input[name=pareja_placeholder]').val(pareja_id)
+});
+
+function set_radio_button(pareja_id)
+{
+  {% for pareja in parejas %}
+    if(pareja_id == {{ pareja.id }})
+    {
+      {% if pareja.normativa %}
+        $('input[name=normativa][value={{ pareja.normativa.id }}]').prop("checked", true)
+        // $('button[type=submit]').html("Modificar")
+        $('button:contains("Inscribirse")').html("Modificar")
+        $('#desinscribirse_form').prop("hidden", false)
+        $('br').prop("hidden", false)
+
+
+      {% else %}
+        $('input[type="radio"]').prop('checked', false);
+        $('button:contains("Modificar")').html("Inscribirse")
+        $('#desinscribirse_form').prop("hidden", true)
+        $('br').prop("hidden", true)
+      {% endif %}
+    }
+  {% endfor %}
+}
+
+</script>
+
+{% endblock %}

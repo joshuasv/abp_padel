@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Campeonato, Normativa, Grupo, Pareja
+
+admin.site.register(Campeonato)
+admin.site.register(Normativa)
+admin.site.register(Grupo)
+admin.site.register(Pareja)

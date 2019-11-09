@@ -30,6 +30,7 @@ urlpatterns = [
     path('profile/', profile_view, name='users-profile'),
     path('pista/', include('pistas.urls')),
     path('reserva/', include('reservas.urls')),
+    path('campeonato/', include('campeonatos.urls')),
 
 ]
 
