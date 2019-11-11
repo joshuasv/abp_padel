@@ -1,0 +1,33 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block content %}
+
+  <article class="media content-section">
+    <div class="media-body">
+      <h2 class="article-title">{{ object.nombre }}
+        <div class="d-inline float-right">
+          {% with ''|center:activos as range %}
+          {% for _ in range %}
+            <img src="{% static 'promociones_partidos/participante_activo.png' %}">
+          {% endfor %}
+          {% endwith %}
+          {% with ''|center:inactivos as range %}
+          {% for _ in range %}
+            <img src="{% static 'promociones_partidos/participante_inactivo.png' %}">
+          {% endfor %}
+          {% endwith %}
+        </div>
+      </h2>
+      <p class="article-content">Fecha inicio: {{ object.fecha_inicio }}</p>
+      <p class="article-content">Fecha fin: {{ object.fecha_fin }}</p>
+
+      <a class="btn btn-outline-info float-right" href="{% url 'promocion-inscripcion' object.id %}">Inscribirse</a>
+      {% if user in object.participantes.all %}
+        <a class="btn btn-outline-danger" href="{% url 'promocion-desinscripcion' object.id %}">Desinscribirse</a>
+      {% endif %}
+
+    </div>
+  </article>
+
+{% endblock %}

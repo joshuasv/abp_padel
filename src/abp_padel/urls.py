@@ -31,6 +31,7 @@ urlpatterns = [
     path('pista/', include('pistas.urls')),
     path('reserva/', include('reservas.urls')),
     path('campeonato/', include('campeonatos.urls')),
+    path('partidos-promocionados/', include('promociones_partidos.urls'))
 
 ]
 

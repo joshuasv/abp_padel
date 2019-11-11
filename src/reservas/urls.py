@@ -1,4 +1,5 @@
 from django.urls import path
+
 from .views import (
     ReservaListView,
     ReservaDetailView,
@@ -6,6 +7,7 @@ from .views import (
     ReservaUpdateView,
     ReservaDeleteView
 )
+
 
 urlpatterns = [
     path('', ReservaListView.as_view(), name='reserva-list'),

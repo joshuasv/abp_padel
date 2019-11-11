@@ -2,6 +2,7 @@
 
 {% block content %}
   {% for campeonato in campeonatos %}
+
     <article class="media content-section">
       <div class="media-body">
         <h2><a class="article-title" href="{% url 'campeonato-detail' campeonato.id %}">{{ campeonato.nombre }}</a></h2>
@@ -12,5 +13,4 @@
     </article>
 
   {% endfor %}
-
 {% endblock %}

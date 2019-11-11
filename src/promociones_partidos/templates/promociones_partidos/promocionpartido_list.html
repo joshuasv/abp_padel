@@ -1,0 +1,14 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+  {% for promocion in promociones %}
+
+    <article class="media content-section">
+      <div class="media-body">
+        <h2><a class="article-title" href="{% url 'promocion-detail' promocion.id %}">{{ promocion.nombre }}</a></h2>
+        <p class="article-content">Fecha inicio: {{ promocion.fecha_inicio }}</p>
+      </div>
+    </article>
+
+  {% endfor %}
+{% endblock %}
