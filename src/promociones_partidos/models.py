@@ -31,8 +31,6 @@ class PromocionPartido(models.Model):
         if not self.fecha_fin:
             self.fecha_fin = self.fecha_inicio + timedelta(minutes=90)
 
-        print("CLEAN", self.participantes.count())
-
         super(PromocionPartido, self).clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):

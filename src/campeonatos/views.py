@@ -10,6 +10,9 @@ class CampeonatoListView(ListView):
     model = Campeonato
     context_object_name = 'campeonatos'
     paginate_by = 5
+    # Campeonato.make_parejas(Campeonato.objects.get(pk=1))
+    # Campeonato.make_groups(Campeonato.objects.get(pk=1))
+    Campeonato.make_enfrentamientos_liga_regular(Campeonato.objects.get(pk=1))
 
     def get_queryset(self):
         return Campeonato.objects.all().order_by('inicio_campeonato')
