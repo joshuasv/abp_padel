@@ -2,8 +2,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import DetailView, ListView
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 
-from .models import Campeonato, Normativa, Pareja
+from .models import Campeonato, Normativa, Pareja, Enfrentamiento
 
 
 class CampeonatoListView(ListView):
@@ -12,7 +13,7 @@ class CampeonatoListView(ListView):
     paginate_by = 5
     # Campeonato.make_parejas(Campeonato.objects.get(pk=1))
     # Campeonato.make_groups(Campeonato.objects.get(pk=1))
-    Campeonato.make_enfrentamientos_liga_regular(Campeonato.objects.get(pk=1))
+    # Campeonato.make_enfrentamientos_liga_regular(Campeonato.objects.get(pk=1))
 
     def get_queryset(self):
         return Campeonato.objects.all().order_by('inicio_campeonato')
@@ -25,8 +26,12 @@ class CampeonatoDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         normativas = Normativa.objects.filter(campeonato=self.object.id)
         parejas = Pareja.objects.filter(capitan=self.request.user)
+        pareja = Pareja.objects.filter(Q(miembro=self.request.user) | Q(capitan=self.request.user)).filter(normativa=normativas[0])
+        primera_ronda = Enfrentamiento.objects.filter(Q(pareja_1=pareja[0]) | Q(pareja_2=pareja[0])).filter(ronda=0)
         context['normativas'] = normativas
         context['parejas'] = parejas
+        context['pareja'] = pareja[0]
+        context['primera_ronda'] = primera_ronda
 
         return context
 

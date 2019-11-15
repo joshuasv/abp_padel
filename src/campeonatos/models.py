@@ -1,5 +1,6 @@
 import string
 import itertools
+import datetime
 
 from django.db import models
 from django.conf import settings
@@ -12,8 +13,12 @@ from reservas.models import Reserva
 
 class Campeonato(models.Model):
     nombre = models.CharField(max_length=100)
-    inicio_campeonato=models.DateTimeField()
+    inicio_campeonato = models.DateTimeField()
     fin_inscripciones = models.DateTimeField()
+
+    @property
+    def paso_fecha_inscripcion(self):
+        return timezone.now() >= self.fin_inscripciones
 
     def __str__(self):
         return self.nombre
@@ -31,7 +36,6 @@ class Campeonato(models.Model):
         for i in range(1, len(usuarios) - 1, 2):
             pareja = Pareja(capitan=usuarios[i], miembro=usuarios[i + 1], normativa=normativa)
             pareja.save()
-
 
     # https://medium.com/@bencleary/django-scheduled-tasks-queues-part-1-62d6b6dc24f8 [AUTOMATICO!!!]
     def make_groups(self):
@@ -64,7 +68,6 @@ class Campeonato(models.Model):
                         if grupos[index].get_parejas_number() < 12:
                             pareja.grupo = grupos[index]
                             pareja.save()
-
 
     def make_enfrentamientos_liga_regular(self):
         grupos = []
@@ -104,7 +107,7 @@ class Grupo(models.Model):
     def clean(self, *args, **kwargs):
         if Grupo.objects.filter(nombre=self.nombre, normativa=self.normativa).count() > 0:
             raise ValidationError('Ya existe este grupo')
-        if Pareja.objects.filter(grupo=self, normativa=self.normativa) >= 12:
+        if Pareja.objects.filter(grupo=self, normativa=self.normativa).count() >= 12:
             raise ValidationError('Número máximo de parejas por grupo (12) alcanzado.')
         super(Grupo, self).clean(*args, **kwargs)
 
@@ -123,6 +126,7 @@ class Pareja(models.Model):
 
 
 class Enfrentamiento(models.Model):
+    ronda = models.IntegerField()
     pareja_1 = models.ForeignKey(Pareja, on_delete=models.CASCADE, related_name='pareja_1')
     pareja_2 = models.ForeignKey(Pareja, on_delete=models.CASCADE, related_name='pareja_2')
     reserva = models.ForeignKey(Reserva, on_delete=models.CASCADE, null=True, blank=True, default=None)

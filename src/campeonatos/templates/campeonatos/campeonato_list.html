@@ -8,7 +8,11 @@
         <h2><a class="article-title" href="{% url 'campeonato-detail' campeonato.id %}">{{ campeonato.nombre }}</a></h2>
         <p class="article-content">Fecha inicio: {{ campeonato.inicio_campeonato }}</p>
         <p class="article-content">Fin inscripciones: {{ campeonato.fin_inscripciones }}</p>
-        <a class="btn btn-outline-info float-right" href="{% url 'campeonato-detail' campeonato.id %}">Inscribirse</a>
+        {% if campeonato.paso_fecha_inscripcion %}
+          <a class="btn btn-outline-info float-right" href="{% url 'campeonato-detail' campeonato.id %}">Ver detalles</a>
+        {% else %}
+          <a class="btn btn-outline-info float-right" href="{% url 'campeonato-detail' campeonato.id %}">Inscribirse</a>
+        {% endif %}
       </div>
     </article>
 
