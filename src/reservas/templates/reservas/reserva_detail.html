@@ -4,14 +4,6 @@
 
   <article class="media content-section">
     <div class="media-body">
-      <div class="article-metadata">
-        {% if user.is_superuser or user == object.usuario %}
-          <div>
-            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'reserva-update' object.id %}">Update</a>
-            <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'reserva-delete' object.id %}">Delete</a>
-          </div>
-        {% endif %}
-      </div>
       <h2 class="article-title">{{ object.usuario }}</h2>
       <p class="article-content">Pista: {{ object.pista.nombre }}</p>
       <p class="article-content">Hora inicio: {{ object.hora_inicio }}</p>

@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from reservas.models import Reserva
-from pistas.models import Pista
+from pistas.models import Pista, HorarioPista
 from users.models import User
 
 class PromocionPartido(models.Model):
@@ -37,26 +37,25 @@ class PromocionPartido(models.Model):
         super(PromocionPartido, self).save(*args, **kwargs)
 
         if self.participantes.count() == 4:
-            # Conseguir las pistas disponibles en fecha_inicio / fecha_fin
-            # Reservar en una de ellas
-            # Pistas que coinciden con el horario de apertura y cierre
-            pistas = Pista.objects.filter(hora_apertura__lte=self.fecha_inicio.time()).filter(hora_cierre__gte=self.fecha_fin.time())
-            # Reservas hechas en el intervalo de hora de inicio y fin de la promocion
-            reservas = Reserva.objects.filter((Q(hora_inicio__gte=self.fecha_fin) and Q(hora_inicio__lte=self.fecha_fin)) or (Q(hora_fin__lte=self.fecha_inicio and Q(hora_fin__gte=self.fecha_fin))))
-            # Retira del Queryset de pistas las ocupadas en esa hora
-            for reserva in reservas:
-                pistas = pistas.exclude(pk=reserva.pista.pk)
-            # Si hay pistas disponibles
-            if pistas.count() > 0:
-                # Crea una reserva a nombre del admin
-                reserva_promocion = Reserva.objects.create(
+            # Pistas que tienen un horario_pista igual al intervalo de horas de la promocion
+            fecha_inicio_delta = self.fecha_inicio + timedelta(hours=1)
+            horarios_pistas = HorarioPista.objects.filter(hora_inicio=fecha_inicio_delta.time())
+            # Reservas que tengan ese horario_pista y la fecha de la promocion
+            reservas = Reserva.objects.filter(fecha=fecha_inicio_delta.date(), horario_pista=horarios_pistas[0])
+            # Excluir los horarios que tengan alguna de las pistas en reservas. Nos quedamos con los horarios libreas.
+            horarios_pistas = horarios_pistas.exclude(pista=reservas[0].pista)
+            # Comprobar que haya alguno
+            if horarios_pistas.count() > 0:
+                # Realizar la reserva para el primer horario del QuerySet
+                reserva = Reserva.objects.create(
                     usuario=User.objects.get(pk=1),
-                    pista=pistas.first(),
-                    hora_inicio=self.fecha_inicio,
-                    hora_fin=self.fecha_fin)
-                reserva_promocion.save()
+                    pista=horarios_pistas.first().pista,
+                    horario_pista=horarios_pistas.first(),
+                    fecha=fecha_inicio_delta.date())
+                reserva.save()
             else:
-                # Cancelar promocion y avisar a los participantes???
+                # Cancelar la promocion
+                # Avisar a los participantes
                 pass
 
 

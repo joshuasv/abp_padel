@@ -4,13 +4,11 @@
   <div class="content-section">
       <form method="POST"> {% csrf_token %}
         <fieldset class="form-group">
-          <legend class="border-bottom mb-4">Delete Reserva</legend>
-          <h2>Are you sure you want to delete the reserva "{{ object.pista.nombre }}"</h2>
+          <legend class="border-bottom mb-4">Cancelar reserva</legend>
+          <h2>¿Seguro que quieres cancelar tu reserva de: "{{ object.pista.nombre }} el día {{ object.fecha }} de {{ object.horario_pista.hora_inicio }} a {{ object.horario_pista.hora_fin }}"?</h2>
+          <button type="submit" class="btn btn-outline-danger float-right">Si, cancelar reserva</button>
+          <a class="btn btn-outline-secondary mr-3 float-right" href="{% url 'reserva-detail' object.id %}">Cancelar</a>
         </fieldset>
-        <div class="form-group">
-          <button type="submit" class="btn btn-outline-danger">Yes, Delete</button>
-          <a class="btn btn-outline-secondary" href="{% url 'reserva-detail' object.id %}">Cancel</a>
-        </div>
       </form>
   </div>
 {% endblock %}

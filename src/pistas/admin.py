@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Pista
 
-# Register your models here.
+from .models import Pista, HorarioPista
+
+
 admin.site.register(Pista)
+admin.site.register(HorarioPista)

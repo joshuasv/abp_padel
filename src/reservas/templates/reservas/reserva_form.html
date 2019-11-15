@@ -3,17 +3,34 @@
 {% block content %}
 
   <div class="content-section">
-      <form method="POST" action=".">
+    <legend class="border-bottom mb-4">Reserva</legend>
+      <form method="POST" id="reservaForm" horario-pista-url="{% url 'ajax_load_horario_pista' %}">
         {% csrf_token %}
         <fieldset class="form-group">
-          <legend class="border-bottom mb-4">Reserva</legend>
           {% crispy form %}
           <div class="form-group">
-            <button type="submit" class="btn btn-outline-info">Añadir</button>
+            <button type="submit" class="btn btn-outline-info float-right">Reservar</button>
           </div>
         </fieldset>
       </form>
   </div>
 
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+  $("#id_pista").change(function(){
+    var url = $("#reservaForm").attr("horario-pista-url")
+    var pistaId = $(this).val()
+
+    $.ajax({
+      url: url,
+      data: {
+        'pista': pistaId
+      },
+      success: function(data) {
+        $("#id_horario_pista").html(data)
+      }
+    });
+  });
+</script>
 
 {% endblock %}

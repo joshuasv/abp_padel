@@ -1,0 +1,4 @@
+<option value="">---------</option>
+{% for horario in horario_pista %}
+  <option value="{{ horario.pk }}">{{ horario.hora_inicio }}, {{ horario.hora_fin }}</option>
+{% endfor %}
