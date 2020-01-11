@@ -29,6 +29,14 @@ class PromocionPartidoDetailView(DetailView):
 def inscripcion(request, promocion_id):
     promocion = PromocionPartido.objects.get(pk=promocion_id)
 
+    if promocion.cerrado:
+        messages.error(request, f"{promocion.nombre} cerrada a nuevas inscripciones!")
+        return redirect('promocion-list')
+
+    if promocion.cancelado:
+        messages.error(request, f"{promocion.nombre} cancelada! No puedes inscribirte!")
+        return redirect('promocion-list')
+
     if promocion.participantes.filter(id=request.user.pk).exists():
         messages.error(request, f"Ya estás inscrito en: {promocion.nombre}!")
         return redirect('promocion-list')
@@ -46,12 +54,20 @@ def inscripcion(request, promocion_id):
 def desinscripcion(request, promocion_id):
     promocion = PromocionPartido.objects.get(pk=promocion_id)
 
+    if promocion.cancelado:
+        messages.error(request, f"{promocion.nombre} cancelada! No puedes desinscribirte!")
+        return redirect('promocion-list')
+
     if not promocion.participantes.filter(id=request.user.pk).exists():
         messages.error(request, f"Aún no te has inscrito en: {promocion.nombre}!")
         return redirect('promocion-detail', pk=promocion_id)
     else:
-        promocion.participantes.remove(request.user)
-        promocion.save()
+        if promocion.cerrado:
+            messages.error(request, f"{promocion.nombre} cerrada, no se admiten desinscripciones!")
+            return redirect('promocion-list')
+        else:
+            promocion.participantes.remove(request.user)
+            promocion.save()
 
     messages.success(request, f"Te has desinscrito correctamente de: {promocion.nombre}!")
     return redirect('promocion-list')

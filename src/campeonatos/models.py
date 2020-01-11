@@ -38,8 +38,9 @@ class Campeonato(models.Model):
             pareja.save()
 
     # https://medium.com/@bencleary/django-scheduled-tasks-queues-part-1-62d6b6dc24f8 [AUTOMATICO!!!]
+    # crontab django
     def make_groups(self):
-        # self.limpiar_grupos()
+        self.limpiar_grupos()
         # Comprobar que la fecha actual es mayor o igual que la de fin_inscripciones
         if timezone.now() >= self.fin_inscripciones:
             alphabet = string.ascii_uppercase
@@ -52,8 +53,8 @@ class Campeonato(models.Model):
                 grupos = []
                 # Crear los grupos máximos de 8 integrantes
                 for i in range(num_parejas // 8):
-                    grupo = Grupo(nombre=alphabet[i], normativa=normativa)
-                    grupo.clean()
+                    grupo = Grupo(campeonato=self, nombre=alphabet[i], normativa=normativa)
+                    # grupo.clean()
                     grupo.save()
                     grupos.append(grupo)
                     miembros_grupo = parejas[0:8]
@@ -70,6 +71,7 @@ class Campeonato(models.Model):
                             pareja.save()
 
     def make_enfrentamientos_liga_regular(self):
+        print("Crear enfrentamientos")
         grupos = []
         normativas = Normativa.objects.filter(campeonato=self)
         for norm in normativas:
@@ -82,7 +84,7 @@ class Campeonato(models.Model):
                 parejas_grupo = list(Pareja.objects.filter(grupo=sub_grupo))
                 combinaciones = list(itertools.combinations(parejas_grupo, 2))
                 for combinacion in combinaciones:
-                    enfrentamiento = Enfrentamiento(pareja_1=combinacion[0], pareja_2=combinacion[1])
+                    enfrentamiento = Enfrentamiento(campeonato=self, ronda=0, pareja_1=combinacion[0], pareja_2=combinacion[1])
                     enfrentamiento.save()
 
 
@@ -98,6 +100,7 @@ class Normativa(models.Model):
 
 
 class Grupo(models.Model):
+    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=50)
     normativa = models.ForeignKey(Normativa, on_delete=models.CASCADE)
 
@@ -126,6 +129,7 @@ class Pareja(models.Model):
 
 
 class Enfrentamiento(models.Model):
+    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
     ronda = models.IntegerField()
     pareja_1 = models.ForeignKey(Pareja, on_delete=models.CASCADE, related_name='pareja_1')
     pareja_2 = models.ForeignKey(Pareja, on_delete=models.CASCADE, related_name='pareja_2')

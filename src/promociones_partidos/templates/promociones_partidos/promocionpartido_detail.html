@@ -5,26 +5,51 @@
 
   <article class="media content-section">
     <div class="media-body">
-      <h2 class="article-title">{{ object.nombre }}
-        <div class="d-inline float-right">
-          {% with ''|center:activos as range %}
-          {% for _ in range %}
-            <img src="{% static 'promociones_partidos/participante_activo.png' %}">
-          {% endfor %}
-          {% endwith %}
-          {% with ''|center:inactivos as range %}
-          {% for _ in range %}
-            <img src="{% static 'promociones_partidos/participante_inactivo.png' %}">
-          {% endfor %}
-          {% endwith %}
+
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col-xs-6">
+            <h2 class="article-title">{{ object.nombre }}
+          </div>
+          <div class="col-xs-6">
+            {% if object.cancelado %}
+              <p class="text-danger float-right">Cancelada.</p>
+            {% else %}
+              {% if not object.cerrado %}
+                <div class="d-inline float-right">
+                  {% with ''|center:activos as range %}
+                  {% for _ in range %}
+                    <img src="{% static 'promociones_partidos/participante_activo.png' %}">
+                  {% endfor %}
+                  {% endwith %}
+                  {% with ''|center:inactivos as range %}
+                  {% for _ in range %}
+                    <img src="{% static 'promociones_partidos/participante_inactivo.png' %}">
+                  {% endfor %}
+                  {% endwith %}
+                </div>
+              {% else %}
+                <p class="text-danger float-right">Cerrada.</p>
+              {% endif %}
+            {% endif %}
+          </div>
         </div>
-      </h2>
+      </div>
       <p class="article-content">Fecha inicio: {{ object.fecha_inicio }}</p>
       <p class="article-content">Fecha fin: {{ object.fecha_fin }}</p>
 
-      <a class="btn btn-outline-info float-right" href="{% url 'promocion-inscripcion' object.id %}">Inscribirse</a>
-      {% if user in object.participantes.all %}
-        <a class="btn btn-outline-danger" href="{% url 'promocion-desinscripcion' object.id %}">Desinscribirse</a>
+      {% if not object.cerrado and not object.cancelado %}
+        <a class="btn btn-outline-info float-right" href="{% url 'promocion-inscripcion' object.id %}">Inscribirse</a>
+        {% if user in object.participantes.all %}
+          <a class="btn btn-outline-danger" href="{% url 'promocion-desinscripcion' object.id %}">Desinscribirse</a>
+        {% endif %}
+      {% else %}
+        {% if not object.cancelado %}
+          {% if user in object.participantes.all %}
+            <p class="article-content text-muted">Participas.</p>
+          {% endif %}
+          <p class="article-content text-muted">Se jugará en: {{ object.reserva.pista.nombre }} el {{ object.reserva.fecha }} de {{ object.reserva.horario_pista.hora_inicio }} a {{ object.reserva.horario_pista.hora_fin }}</p>
+        {% endif %}
       {% endif %}
 
     </div>

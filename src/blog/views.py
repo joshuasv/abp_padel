@@ -46,8 +46,6 @@ class PostCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         return self.request.user.is_superuser
 
 
-
-
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     fields = ['title', 'content']

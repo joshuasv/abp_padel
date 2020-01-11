@@ -6,8 +6,14 @@ from .models import User, Profile
 class ProfileInline(admin.TabularInline):
     model = Profile
 
-class UserAdmin(admin.ModelAdmin):
-    fields = ['first_name', 'last_name', 'username', 'email', 'dni', 'sex', 'password']
+
+class MyUserAdmin(UserAdmin):
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('first_name', 'last_name', 'username', 'password1', 'password2', 'email', 'sex', 'dni')}
+        ),
+    )
     inlines = [ProfileInline]
 
-admin.site.register(User, UserAdmin)
+admin.site.register(User, MyUserAdmin)

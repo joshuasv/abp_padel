@@ -1,19 +1,19 @@
+from datetime import datetime
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import DetailView, ListView
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils import timezone
 from django.db.models import Q
 
-from .models import Campeonato, Normativa, Pareja, Enfrentamiento
+from .models import Campeonato, Normativa, Pareja, Enfrentamiento, Grupo
 
 
 class CampeonatoListView(ListView):
     model = Campeonato
     context_object_name = 'campeonatos'
     paginate_by = 5
-    # Campeonato.make_parejas(Campeonato.objects.get(pk=1))
-    # Campeonato.make_groups(Campeonato.objects.get(pk=1))
-    # Campeonato.make_enfrentamientos_liga_regular(Campeonato.objects.get(pk=1))
 
     def get_queryset(self):
         return Campeonato.objects.all().order_by('inicio_campeonato')
@@ -23,14 +23,19 @@ class CampeonatoDetailView(LoginRequiredMixin, DetailView):
     model = Campeonato
 
     def get_context_data(self, **kwargs):
+        # Hace los grupos si se excede la fecha de inscripcion
+        # Y si todavía no han sido creado enfrentamintos para el campeonato
+        if (Enfrentamiento.objects.filter(campeonato=self.get_object()).count() <= 0) and (Grupo.objects.filter().count() <= 0):
+            self.get_object().make_groups()
+            self.get_object().make_enfrentamientos_liga_regular()
         context = super().get_context_data(**kwargs)
         normativas = Normativa.objects.filter(campeonato=self.object.id)
         parejas = Pareja.objects.filter(capitan=self.request.user)
-        pareja = Pareja.objects.filter(Q(miembro=self.request.user) | Q(capitan=self.request.user)).filter(normativa=normativas[0])
-        primera_ronda = Enfrentamiento.objects.filter(Q(pareja_1=pareja[0]) | Q(pareja_2=pareja[0])).filter(ronda=0)
+        pareja = Pareja.objects.filter(Q(miembro=self.request.user) | Q(capitan=self.request.user)).filter(normativa__in=normativas)
+        primera_ronda = Enfrentamiento.objects.filter(Q(pareja_1__in=pareja) | Q(pareja_2__in=pareja)).filter(ronda=0)
         context['normativas'] = normativas
         context['parejas'] = parejas
-        context['pareja'] = pareja[0]
+        context['pareja'] = pareja.first()
         context['primera_ronda'] = primera_ronda
 
         return context
@@ -38,6 +43,12 @@ class CampeonatoDetailView(LoginRequiredMixin, DetailView):
 
 
 def inscripcion(request, campeonato_id):
+
+    # Comprobar inscripcion fuera de fecha
+    if timezone.now() > Campeonato.objects.get(pk=campeonato_id).inicio_campeonato:
+        messages.error(request, "El periodo de inscripciones ha finalizado!")
+        return redirect('campeonato-list')
+
     try:
         selected_normativa = Normativa.objects.get(pk=request.POST['normativa'])
     except(KeyError, Normativa.DoesNotExist):

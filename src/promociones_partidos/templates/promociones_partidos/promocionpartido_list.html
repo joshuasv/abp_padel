@@ -5,7 +5,20 @@
 
     <article class="media content-section">
       <div class="media-body">
-        <h2><a class="article-title" href="{% url 'promocion-detail' promocion.id %}">{{ promocion.nombre }}</a></h2>
+        <div class="container">
+          <div class="row justify-content-between">
+            <div class="col-xs-6">
+              <h2><a class="article-title" href="{% url 'promocion-detail' promocion.id %}">{{ promocion.nombre }}</a></h2>
+            </div>
+            <div class="col-xs-6">
+              {% if promocion.cerrado %}
+                <p class="text-danger float-right">Cerrada.</p>
+              {% elif promocion.cancelado %}
+                <p class="text-danger float-right">Cancelada.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
         <p class="article-content">Fecha inicio: {{ promocion.fecha_inicio }}</p>
       </div>
     </article>

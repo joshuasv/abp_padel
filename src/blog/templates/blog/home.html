@@ -4,14 +4,12 @@
 
   {% for p in posts %}
     <article class="media content-section">
-      <img class="rounded-circle article-img" src="{{ p.author.profile.image.url }}">
       <div class="media-body">
         <div class="article-metadata">
-          <a class="mr-2" href="{% url 'user-posts' p.author.username %}">{{ p.author }}</a>
           <small class="text-muted">{{ p.date_posted|date:'d F, Y' }}</small>
         </div>
         <h2><a class="article-title" href="{% url 'post-detail' p.id %}">{{ p.title }}</a></h2>
-        <p class="article-content">{{ p.content }}</p>
+        <p class="article-content ">{{ p.content | truncatechars:350 }}</p>
       </div>
     </article>
   {% endfor %}
