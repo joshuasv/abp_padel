@@ -51,19 +51,23 @@
       <tbody>
         <tr>
           <th scope="row">Pareja 1</th>
-          <td>{{enfrent.set_1_pareja_1}}</td>
-          <td>{{enfrent.set_2_pareja_1}}</td>
-          <td>{{enfrent.set_3_pareja_1}}</td>
+          <td>{{ enfrent.get_set_1_pareja_1_display }}</td>
+          <td>{{ enfrent.get_set_2_pareja_1_display }}</td>
+          <td>{{ enfrent.get_set_3_pareja_1_display }}</td>
         </tr>
         <tr>
           <th scope="row">Pareja 2</th>
-          <td>{{enfrent.set_1_pareja_2}}</td>
-          <td>{{enfrent.set_2_pareja_2}}</td>
-          <td>{{enfrent.set_3_pareja_2}}</td>
+          <td>{{ enfrent.get_set_1_pareja_2_display }}</td>
+          <td>{{ enfrent.get_set_2_pareja_2_display }}</td>
+          <td>{{ enfrent.get_set_3_pareja_2_display }}</td>
         </tr>
       </tbody>
     </table>
 
+    {% if enfrent.ganador %}
+    <hr>
+    <p class="article-content"><b>Ganadores: {{ enfrent.ganador }}</b></p>
+    {% endif %}
 
 
   </div>

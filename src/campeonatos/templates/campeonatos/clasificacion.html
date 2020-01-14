@@ -1,0 +1,40 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<article class="media content-section">
+  <div class="media-body">
+    <h2 class="article-title">Clasificación {{ campeonato.nombre }}</h2>
+</div>
+</article>
+
+<article class="media content-section">
+  <div class="media-body">
+
+
+    <table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col"></th>
+        <th scope="col">Pareja</th>
+        <th scope="col">Puntos</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pareja in parejas %}
+        {% if pareja.id == p.id %}
+          <tr class="table-info">
+        {% else %}
+          <tr>
+        {% endif %}
+          <th scope="row">{{forloop.counter0|add:1}}</th>
+          <td>{{pareja}}</td>
+          <td>{{pareja.puntuacion_clasificacion}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+</article>
+
+{% endblock %}

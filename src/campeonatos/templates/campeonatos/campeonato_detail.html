@@ -44,6 +44,7 @@
       <p class="article-content">Fecha inicio: {{ object.inicio_campeonato }}</p>
       <p class="article-content">Tu pareja: {{ pareja }}</p>
       <p class="article-content">Grupo {{ pareja.grupo.nombre }} ({{ pareja.grupo.normativa }})</p>
+      <a class="btn btn-outline-info float-right" href="{% url 'campeonato-clasificacion' pareja.id %}">Clasificación</a>
   </div>
 </article>
 

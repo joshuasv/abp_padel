@@ -169,3 +169,14 @@ def rechazar_enfrentamiento(request, pk):
 
     enfrentamiento.save()
     return redirect('enfrentamiento-detail', pk=pk)
+
+def clasificacion(request, pareja_id):
+    pareja = Pareja.objects.get(id=pareja_id)
+    parejas_campeonato = Pareja.objects.filter(normativa=pareja.normativa)
+    # Ordenar parejas por puntos
+    parejas_campeonato = parejas_campeonato.order_by('-puntuacion_clasificacion')
+
+    context = {'campeonato': pareja.normativa.campeonato, 'parejas': parejas_campeonato, 'p': pareja }
+
+
+    return render(request, 'campeonatos/clasificacion.html', context)

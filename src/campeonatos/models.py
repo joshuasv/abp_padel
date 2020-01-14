@@ -123,6 +123,7 @@ class Pareja(models.Model):
     normativa = models.ForeignKey(Normativa, on_delete=models.SET_DEFAULT, blank=True, null=True, default=None)
     capitan = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='capitan')
     miembro = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='miembro')
+    puntuacion_clasificacion = models.IntegerField(default=0)
 
     def __str__(self):
         return "Capitan: " + self.capitan.email + "-Miembro: " + self.miembro.email
@@ -138,20 +139,14 @@ class Enfrentamiento(models.Model):
     turno_fecha = models.CharField(max_length=1, choices=TURNO_CHOICE, default='1')
     fecha = models.DateField(null=True, blank=True, default=None)
     reserva = models.ForeignKey(Reserva, on_delete=models.CASCADE, null=True, blank=True, default=None)
-    set_1_pareja_1 = models.IntegerField(null=True, blank=True, default=None)
-    set_1_pareja_2 = models.IntegerField(null=True, blank=True, default=None)
-    set_2_pareja_1 = models.IntegerField(null=True, blank=True, default=None)
-    set_2_pareja_2 = models.IntegerField(null=True, blank=True, default=None)
-    set_3_pareja_1 = models.IntegerField(null=True, blank=True, default=None)
-    set_3_pareja_2 = models.IntegerField(null=True, blank=True, default=None)
+    PUNTUACION_CHOICE = [('0', 'No jugado'), ('1', 15), ('2', 30), ('3', 40), ('4', 'juego')]
+    set_1_pareja_1 = models.CharField(max_length=1, choices=PUNTUACION_CHOICE, default='0')
+    set_1_pareja_2 = models.CharField(max_length=1, choices=PUNTUACION_CHOICE, default='0')
+    set_2_pareja_1 = models.CharField(max_length=1, choices=PUNTUACION_CHOICE, default='0')
+    set_2_pareja_2 = models.CharField(max_length=1, choices=PUNTUACION_CHOICE, default='0')
+    set_3_pareja_1 = models.CharField(max_length=1, choices=PUNTUACION_CHOICE, default='0')
+    set_3_pareja_2 = models.CharField(max_length=1, choices=PUNTUACION_CHOICE, default='0')
     ganador = models.ForeignKey(Pareja, on_delete=models.CASCADE, null=True, blank=True, default=None)
 
     def __str__(self):
         return f"{self.pareja_1} VS. {self.pareja_2}"
-
-
-# class AceptaEnfrentamiento(models.Model):
-#     enfrentamiento = models.ForeignKey(Enfrentamiento, on_delete=models.CASCADE)
-#     fecha = models.DateTimeField()
-#     acepta_pareja_1 = models.BooleanField(default=False)
-#     acepta_pareja_2 = models.BooleanField(default=False)
