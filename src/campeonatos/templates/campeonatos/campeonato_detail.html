@@ -54,7 +54,7 @@
     <p class="article-content">Enfrentamientos</p>
     {% for enfrent in primera_ronda %}
       <div>
-        <a class="btn btn-outline-info float-right" href="#">Detalle</a>
+        <a class="btn btn-outline-info float-right" href="{% url 'enfrentamiento-detail' enfrent.id %}">Detalle</a>
         <p>{{ enfrent.pareja_1.capitan }} y {{ enfrent.pareja_1.miembro }} vs. {{ enfrent.pareja_2.capitan }} y {{ enfrent.pareja_2.miembro }}</p>
       </div>
     {% endfor %}
@@ -83,9 +83,6 @@ $('select').on('change', function() {
 
 function set_radio_button(pareja_id)
 {
-  {% for pareja in parejas %}
-    if(pareja_id == {{ pareja.id }})
-    {
       {% if pareja.normativa %}
         $('input[name=normativa][value={{ pareja.normativa.id }}]').prop("checked", true)
         // $('button[type=submit]').html("Modificar")
@@ -100,8 +97,6 @@ function set_radio_button(pareja_id)
         $('#desinscribirse_form').prop("hidden", true)
         $('br').prop("hidden", true)
       {% endif %}
-    }
-  {% endfor %}
 }
 
 </script>

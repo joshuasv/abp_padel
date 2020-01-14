@@ -1,13 +1,17 @@
 from datetime import datetime
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import DetailView, ListView
+from django.shortcuts import render, get_object_or_404, redirect, reverse
+from django.views.generic import DetailView, ListView, FormView
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 from django.db.models import Q
 
+from .forms import EnvioEnfrentamientoForm
 from .models import Campeonato, Normativa, Pareja, Enfrentamiento, Grupo
+from reservas.models import Reserva
+from pistas.models import HorarioPista, Pista
+from users.models import User
 
 
 class CampeonatoListView(ListView):
@@ -16,7 +20,7 @@ class CampeonatoListView(ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        return Campeonato.objects.all().order_by('inicio_campeonato')
+        return Campeonato.objects.all().order_by('-fin_inscripciones')
 
 
 class CampeonatoDetailView(LoginRequiredMixin, DetailView):
@@ -28,6 +32,7 @@ class CampeonatoDetailView(LoginRequiredMixin, DetailView):
         if (Enfrentamiento.objects.filter(campeonato=self.get_object()).count() <= 0) and (Grupo.objects.filter().count() <= 0):
             self.get_object().make_groups()
             self.get_object().make_enfrentamientos_liga_regular()
+
         context = super().get_context_data(**kwargs)
         normativas = Normativa.objects.filter(campeonato=self.object.id)
         parejas = Pareja.objects.filter(capitan=self.request.user)
@@ -41,11 +46,48 @@ class CampeonatoDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
+class EnfrentamientoFormView(LoginRequiredMixin, FormView):
+    model = Enfrentamiento
+    form_class = EnvioEnfrentamientoForm
+    template_name = 'campeonatos/enfrentamiento_detail.html'
+
+    def form_valid(self, form):
+        fecha = form.cleaned_data.get('fecha')
+        if(fecha):
+            enfrentamiento = self.get_context_data()['enfrent']
+            enfrentamiento.fecha = fecha
+            if enfrentamiento.turno_fecha == '1':
+                enfrentamiento.turno_fecha = '2'
+            else:
+                enfrentamiento.turno_fecha = '1'
+            enfrentamiento.save()
+            print(form.cleaned_data.get('fecha'))
+            messages.info(self.request, "Petición de enfrentamiento enviada al otro equipo!")
+            return redirect('enfrentamiento-detail', pk=enfrentamiento.pk)
+
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs);
+
+        enfrentamiento = Enfrentamiento.objects.get(pk=self.kwargs['pk'])
+        context['enfrent'] = enfrentamiento
+        if (enfrentamiento.pareja_1.capitan.id == self.request.user.id) or (enfrentamiento.pareja_1.miembro.id == self.request.user.id):
+            context['pareja'] = enfrentamiento.pareja_1
+            context['num_pareja'] = '1'
+        else:
+            context['pareja'] = enfrentamiento.pareja_2
+            context['num_pareja'] = '2'
+
+        return context
+
 
 def inscripcion(request, campeonato_id):
 
     # Comprobar inscripcion fuera de fecha
-    if timezone.now() > Campeonato.objects.get(pk=campeonato_id).inicio_campeonato:
+    print(timezone.now())
+    print(Campeonato.objects.get(pk=campeonato_id).fin_inscripciones)
+    if timezone.now() >= Campeonato.objects.get(pk=campeonato_id).fin_inscripciones:
         messages.error(request, "El periodo de inscripciones ha finalizado!")
         return redirect('campeonato-list')
 
@@ -89,3 +131,41 @@ def desinscripcion(request, campeonato_id):
 
     messages.success(request, "Tu pareja ha sido desinscrita correctamente!")
     return redirect('campeonato-list')
+
+def aceptar_enfrentamiento(request, pk):
+    enfrentamiento = Enfrentamiento.objects.get(pk=pk)
+    horarios_pistas = HorarioPista.objects.all()
+
+    # Eliminar los horarios que no estén libres
+    reservas = Reserva.objects.filter(fecha=enfrentamiento.fecha)
+    for reserva in reservas:
+        horarios_pistas = horarios_pistas.exclude(pk=reserva.horario_pista.pk)
+    # Si hay huecos para ese día hacer la reserva
+    if len(horarios_pistas) > 0:
+        # Marcar enfrentamiento aceptado
+        enfrentamiento.acepto_pareja = True
+        horario = horarios_pistas.first()
+        reserva = Reserva.objects.create(
+            usuario=User.objects.get(pk=1),
+            pista=horario.pista,
+            horario_pista=horario,
+            fecha=enfrentamiento.fecha)
+        reserva.save()
+        enfrentamiento.reserva = reserva
+        enfrentamiento.save()
+    else: # No hay huecos, volver a establecer fecha
+        messages.error(request, "Escoge otra fecha! No hay huecos disponibles!")
+        enfrentamiento.fecha = None;
+        return redirect('enfrentamiento-detail', pk=pk)
+
+    messages.success(request, "Enfrentamiento aceptado!")
+    return redirect('enfrentamiento-detail', pk=pk)
+
+
+def rechazar_enfrentamiento(request, pk):
+    enfrentamiento = Enfrentamiento.objects.get(pk=pk)
+    # Eliminar la fecha
+    enfrentamiento.fecha = None
+
+    enfrentamiento.save()
+    return redirect('enfrentamiento-detail', pk=pk)

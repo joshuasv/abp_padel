@@ -1,0 +1,72 @@
+{% extends 'blog/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<article class="media content-section">
+  <div class="media-body">
+    <h2 class="article-title">Ronda {{object.ronda}} del campeonato {{ enfrent.campeonato.nombre }}</h2>
+    <p class="article-content">Pareja 1: {{enfrent.pareja_1}}</p>
+    <p class="article-content">vs. </p>
+    <p class="article-content">Pareja 2: {{enfrent.pareja_2}}</p>
+    <hr>
+    <!-- Le toca a la pareja actual establecer fecha.-->
+    {% if enfrent.turno_fecha == num_pareja and not enfrent.fecha %}
+      <form method="POST" id="enfrentamientoFecha">
+        {% csrf_token %}
+        <fieldset class="form-group">
+          {% crispy form %}
+          <div class="form-group">
+            <button type="submit" class="btn btn-outline-info float-right">Enviar</button>
+          </div>
+        </fieldset>
+    </form>
+    <!-- Le toca a la pareja actual aceptar/rechazar enfrentamiento.-->
+    {% elif enfrent.turno_fecha == num_pareja and enfrent.fecha and not enfrent.reserva %}
+      <p class="article-content">¿Enfrentamiento propuesto: {{enfrent.fecha}}?</p>
+      <a class="btn btn-outline-danger" href="{% url 'enfrentamiento-rechazar' enfrent.id %}">Rechazar</a>
+      <a class="btn btn-outline-info" href="{% url 'enfrentamiento-aceptar' enfrent.id %}">Aceptar</a>
+
+    {% elif enfrent.reserva %}
+      <p class="article-content"><b>Enfrentamiento organizado:</b></p>
+      <p class="article-content">{{enfrent.fecha }} -- {{enfrent.reserva.horario_pista}}</p>
+    {% else %}
+      <p class="article-content">Esperando confirmación de los adversarios...</p>
+      <p class="article-content">Fecha propuesta: {{enfrent.fecha}}</p>
+    {% endif %}
+
+    <!--
+    Conseguir pareja actual
+    Escoger fecha, enviar fecha, aceptar fecha...
+    -->
+
+    <hr>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col"></th>
+          <th scope="col">Primer set</th>
+          <th scope="col">Segundo set</th>
+          <th scope="col">Tercer set</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Pareja 1</th>
+          <td>{{enfrent.set_1_pareja_1}}</td>
+          <td>{{enfrent.set_2_pareja_1}}</td>
+          <td>{{enfrent.set_3_pareja_1}}</td>
+        </tr>
+        <tr>
+          <th scope="row">Pareja 2</th>
+          <td>{{enfrent.set_1_pareja_2}}</td>
+          <td>{{enfrent.set_2_pareja_2}}</td>
+          <td>{{enfrent.set_3_pareja_2}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+
+  </div>
+</article>
+
+{% endblock %}

@@ -29,13 +29,13 @@ class Campeonato(models.Model):
             pareja.grupo = None
             pareja.save()
 
-    def make_parejas(self):
-        usuarios = list(User.objects.all())
-        campeonato = Campeonato.objects.get(pk=1)
-        normativa = Normativa.objects.get(campeonato=campeonato, pk=1)
-        for i in range(1, len(usuarios) - 1, 2):
-            pareja = Pareja(capitan=usuarios[i], miembro=usuarios[i + 1], normativa=normativa)
-            pareja.save()
+    # def make_parejas(self):
+    #     usuarios = list(User.objects.all())
+    #     campeonato = Campeonato.objects.get(pk=1)
+    #     normativa = Normativa.objects.get(campeonato=campeonato, pk=1)
+    #     for i in range(1, len(usuarios) - 1, 2):
+    #         pareja = Pareja(capitan=usuarios[i], miembro=usuarios[i + 1], normativa=normativa)
+    #         pareja.save()
 
     # https://medium.com/@bencleary/django-scheduled-tasks-queues-part-1-62d6b6dc24f8 [AUTOMATICO!!!]
     # crontab django
@@ -71,7 +71,7 @@ class Campeonato(models.Model):
                             pareja.save()
 
     def make_enfrentamientos_liga_regular(self):
-        print("Crear enfrentamientos")
+        # print("Crear enfrentamientos")
         grupos = []
         normativas = Normativa.objects.filter(campeonato=self)
         for norm in normativas:
@@ -133,6 +133,10 @@ class Enfrentamiento(models.Model):
     ronda = models.IntegerField()
     pareja_1 = models.ForeignKey(Pareja, on_delete=models.CASCADE, related_name='pareja_1')
     pareja_2 = models.ForeignKey(Pareja, on_delete=models.CASCADE, related_name='pareja_2')
+    acepto_pareja = models.BooleanField(default=False)
+    TURNO_CHOICE = [('1', pareja_1), ('2', pareja_2)]
+    turno_fecha = models.CharField(max_length=1, choices=TURNO_CHOICE, default='1')
+    fecha = models.DateField(null=True, blank=True, default=None)
     reserva = models.ForeignKey(Reserva, on_delete=models.CASCADE, null=True, blank=True, default=None)
     set_1_pareja_1 = models.IntegerField(null=True, blank=True, default=None)
     set_1_pareja_2 = models.IntegerField(null=True, blank=True, default=None)
@@ -146,8 +150,8 @@ class Enfrentamiento(models.Model):
         return f"{self.pareja_1} VS. {self.pareja_2}"
 
 
-class AceptaEnfrentamiento(models.Model):
-    enfrentamiento = models.ForeignKey(Enfrentamiento, on_delete=models.CASCADE)
-    fecha = models.DateTimeField()
-    acepta_pareja_1 = models.BooleanField(default=False)
-    acepta_pareja_2 = models.BooleanField(default=False)
+# class AceptaEnfrentamiento(models.Model):
+#     enfrentamiento = models.ForeignKey(Enfrentamiento, on_delete=models.CASCADE)
+#     fecha = models.DateTimeField()
+#     acepta_pareja_1 = models.BooleanField(default=False)
+#     acepta_pareja_2 = models.BooleanField(default=False)
