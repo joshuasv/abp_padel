@@ -1,6 +1,7 @@
 import string, random
+import time
 from users.models import User
-from campeonatos.models import Pareja, Campeonato, Normativa
+from campeonatos.models import Pareja, Campeonato, Normativa, Enfrentamiento
 
 def crear_usuarios():
     # Eliminar todos los usuarios menos el admin
@@ -17,6 +18,7 @@ def crear_usuarios():
         username = 'user{0}'.format(i)
         dni = "".join(random.sample(string.digits, k=8)) + "".join(random.sample(string.ascii_uppercase, k=1))
         usuario = User.objects.create(username=username, email=username + '@at.com', sex='M', dni=dni)
+        usuario.set_password('test')
         usuario.save()
     print("\tUsuarios creados.")
 
@@ -66,3 +68,44 @@ def registrar_parejas_campeonato():
         len(Pareja.objects.filter(normativa=Normativa.objects.get(categoria='F'))),
         len(Pareja.objects.filter(normativa=Normativa.objects.get(categoria='X')))
     ))
+
+
+# rellenar_puntuaciones_enfrentamientos(8,0)
+def rellenar_puntuaciones_enfrentamientos(campeonato, ronda):
+    enfrentamientos = Enfrentamiento.objects.filter(campeonato__id=campeonato, ronda=ronda)
+
+    if ronda == 0: # Poner puntuaciones a 0
+        for enf in enfrentamientos:
+            enf.pareja_1.puntuacion_clasificacion = 0
+            enf.pareja_2.puntuacion_clasificacion = 0
+            enf.pareja_1.save()
+            enf.pareja_2.save()
+
+    enfrentamientos = Enfrentamiento.objects.filter(campeonato__id=campeonato, ronda=ronda)
+
+    for enf in enfrentamientos:
+        parejas = [enf.pareja_1, enf.pareja_2]
+        if random.choice(parejas) == enf.pareja_1:
+            enf.set_1_pareja_1 = '4'
+            enf.set_1_pareja_2 = random.choice(Enfrentamiento.PUNTUACION_CHOICE[1:-1])[0]
+        else:
+            enf.set_1_pareja_2 = '4'
+            enf.set_1_pareja_1 = random.choice(Enfrentamiento.PUNTUACION_CHOICE[1:-1])[0]
+        if random.choice(parejas) == enf.pareja_1:
+            enf.set_2_pareja_1 = '4'
+            enf.set_2_pareja_2 = random.choice(Enfrentamiento.PUNTUACION_CHOICE[1:-1])[0]
+        else:
+            enf.set_2_pareja_2 = '4'
+            enf.set_2_pareja_1 = random.choice(Enfrentamiento.PUNTUACION_CHOICE[1:-1])[0]
+        if random.choice(parejas) == enf.pareja_1:
+            enf.set_3_pareja_1 = '4'
+            enf.set_3_pareja_2 = random.choice(Enfrentamiento.PUNTUACION_CHOICE[1:-1])[0]
+        else:
+            enf.set_3_pareja_2 = '4'
+            enf.set_3_pareja_1 = random.choice(Enfrentamiento.PUNTUACION_CHOICE[1:-1])[0]
+
+        enf.save()
+        # time.sleep(1)
+        print(enf.pareja_1, enf.pareja_2)
+        print(enf.pareja_1.puntuacion_clasificacion,enf.pareja_2.puntuacion_clasificacion)
+        print("........")

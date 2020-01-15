@@ -22,36 +22,37 @@ class EnfrentamientoAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
         # Comprobar si están todos los huecos de puntuación llenos
-        if (obj.set_1_pareja_1 != '0') and (obj.set_2_pareja_1 != '0') and (obj.set_3_pareja_1 != '0') and (obj.set_1_pareja_2 != '0') and (obj.set_2_pareja_2 != '0') and (obj.set_3_pareja_2 != '0'):
-            # Establecer un ganador
-            juegos_pareja_1 = 0
-            juegos_pareja_2 = 0
-            if obj.set_1_pareja_1 == '4':
-                juegos_pareja_1 += 1
-            if obj.set_2_pareja_1 == '4':
-                juegos_pareja_1 += 1
-            if obj.set_3_pareja_1 == '4':
-                juegos_pareja_1 += 1
-            if obj.set_1_pareja_2 == '4':
-                juegos_pareja_2 += 1
-            if obj.set_2_pareja_2 == '4':
-                juegos_pareja_2 += 1
-            if obj.set_3_pareja_2 == '4':
-                juegos_pareja_2 += 1
+        # if (obj.set_1_pareja_1 != '0') and (obj.set_2_pareja_1 != '0') and (obj.set_3_pareja_1 != '0') and (obj.set_1_pareja_2 != '0') and (obj.set_2_pareja_2 != '0') and (obj.set_3_pareja_2 != '0'):
+        #     # Establecer ganador
+        #     juegos_pareja_1 = 0
+        #     juegos_pareja_2 = 0
+        #     if obj.set_1_pareja_1 == '4':
+        #         juegos_pareja_1 += 1
+        #     if obj.set_2_pareja_1 == '4':
+        #         juegos_pareja_1 += 1
+        #     if obj.set_3_pareja_1 == '4':
+        #         juegos_pareja_1 += 1
+        #     if obj.set_1_pareja_2 == '4':
+        #         juegos_pareja_2 += 1
+        #     if obj.set_2_pareja_2 == '4':
+        #         juegos_pareja_2 += 1
+        #     if obj.set_3_pareja_2 == '4':
+        #         juegos_pareja_2 += 1
+        #
+        #     if juegos_pareja_1 > juegos_pareja_2:
+        #         obj.ganador = obj.pareja_1
+        #         # Actualizar la puntación de la clasificación
+        #         obj.pareja_1.puntuacion_clasificacion += 3
+        #         obj.pareja_2.puntuacion_clasificacion += 1
+        #     else:
+        #         obj.ganador = obj.pareja_2
+        #         # Actualizar la puntación de la clasificación
+        #         obj.pareja_1.puntuacion_clasificacion += 1
+        #         obj.pareja_2.puntuacion_clasificacion += 3
+        #
+        #     obj.pareja_1.save()
+        #     obj.pareja_2.save()
+        #     obj.save()
 
-            if juegos_pareja_1 > juegos_pareja_2:
-                obj.ganador = obj.pareja_1
-                # Actualizar la puntación de la clasificación
-                obj.pareja_1.puntuacion_clasificacion += 3
-                obj.pareja_2.puntuacion_clasificacion += 1
-            else:
-                obj.ganador = obj.pareja_2
-                # Actualizar la puntación de la clasificación
-                obj.pareja_1.puntuacion_clasificacion += 1
-                obj.pareja_2.puntuacion_clasificacion += 3
-                
-            obj.pareja_1.save()
-            obj.pareja_2.save()
-            obj.save()
-
-admin.site.register(Enfrentamiento, EnfrentamientoAdmin)
+admin.site.register(Enfrentamiento)
+# admin.site.register(Enfrentamiento, EnfrentamientoAdmin)

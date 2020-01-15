@@ -38,10 +38,12 @@ class CampeonatoDetailView(LoginRequiredMixin, DetailView):
         parejas = Pareja.objects.filter(capitan=self.request.user)
         pareja = Pareja.objects.filter(Q(miembro=self.request.user) | Q(capitan=self.request.user)).filter(normativa__in=normativas)
         primera_ronda = Enfrentamiento.objects.filter(Q(pareja_1__in=pareja) | Q(pareja_2__in=pareja)).filter(ronda=0)
+        cuartos = Enfrentamiento.objects.filter(Q(pareja_1__in=pareja) | Q(pareja_2__in=pareja)).filter(ronda=1)
         context['normativas'] = normativas
         context['parejas'] = parejas
         context['pareja'] = pareja.first()
         context['primera_ronda'] = primera_ronda
+        context['cuartos'] = cuartos
 
         return context
 

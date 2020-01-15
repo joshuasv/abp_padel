@@ -6,6 +6,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 
 from users.models import User
 from reservas.models import Reserva
@@ -24,15 +25,15 @@ class Campeonato(models.Model):
         return self.nombre
 
     def limpiar_grupos(self):
-        parejas = Pareja.objects.all()
+        parejas = Pareja.selfects.all()
         for pareja in parejas:
             pareja.grupo = None
             pareja.save()
 
     # def make_parejas(self):
-    #     usuarios = list(User.objects.all())
-    #     campeonato = Campeonato.objects.get(pk=1)
-    #     normativa = Normativa.objects.get(campeonato=campeonato, pk=1)
+    #     usuarios = list(User.selfects.all())
+    #     campeonato = Campeonato.selfects.get(pk=1)
+    #     normativa = Normativa.selfects.get(campeonato=campeonato, pk=1)
     #     for i in range(1, len(usuarios) - 1, 2):
     #         pareja = Pareja(capitan=usuarios[i], miembro=usuarios[i + 1], normativa=normativa)
     #         pareja.save()
@@ -45,10 +46,10 @@ class Campeonato(models.Model):
         if timezone.now() >= self.fin_inscripciones:
             alphabet = string.ascii_uppercase
             # Coger todas las normativas para ese campeonato
-            normativas = Normativa.objects.filter(campeonato=self)
+            normativas = Normativa.selfects.filter(campeonato=self)
             for normativa in normativas:
                 # Para cada normativa ver cuantas parejas tiene
-                parejas = list(Pareja.objects.filter(normativa=normativa))
+                parejas = list(Pareja.selfects.filter(normativa=normativa))
                 num_parejas = len(parejas)
                 grupos = []
                 # Crear los grupos máximos de 8 integrantes
@@ -73,15 +74,15 @@ class Campeonato(models.Model):
     def make_enfrentamientos_liga_regular(self):
         # print("Crear enfrentamientos")
         grupos = []
-        normativas = Normativa.objects.filter(campeonato=self)
+        normativas = Normativa.selfects.filter(campeonato=self)
         for norm in normativas:
-            grupo = Grupo.objects.filter(normativa=norm)
+            grupo = Grupo.selfects.filter(normativa=norm)
             if grupo:
                 grupos.append(grupo)
         letras = string.ascii_uppercase
         for grupo in grupos:
             for sub_grupo in grupo:
-                parejas_grupo = list(Pareja.objects.filter(grupo=sub_grupo))
+                parejas_grupo = list(Pareja.selfects.filter(grupo=sub_grupo))
                 combinaciones = list(itertools.combinations(parejas_grupo, 2))
                 for combinacion in combinaciones:
                     enfrentamiento = Enfrentamiento(campeonato=self, ronda=0, pareja_1=combinacion[0], pareja_2=combinacion[1])
@@ -108,14 +109,14 @@ class Grupo(models.Model):
         return f"[{self.normativa.campeonato.nombre}] Grupo {self.nombre} ({self.normativa.get_categoria_display()}, {self.normativa.get_nivel_display()})";
 
     def clean(self, *args, **kwargs):
-        if Grupo.objects.filter(nombre=self.nombre, normativa=self.normativa).count() > 0:
+        if Grupo.selfects.filter(nombre=self.nombre, normativa=self.normativa).count() > 0:
             raise ValidationError('Ya existe este grupo')
-        if Pareja.objects.filter(grupo=self, normativa=self.normativa).count() >= 12:
+        if Pareja.selfects.filter(grupo=self, normativa=self.normativa).count() >= 12:
             raise ValidationError('Número máximo de parejas por grupo (12) alcanzado.')
         super(Grupo, self).clean(*args, **kwargs)
 
     def get_parejas_number(self):
-        return Pareja.objects.filter(grupo=self).count()
+        return Pareja.selfects.filter(grupo=self).count()
 
 
 class Pareja(models.Model):
@@ -150,3 +151,82 @@ class Enfrentamiento(models.Model):
 
     def __str__(self):
         return f"{self.pareja_1} VS. {self.pareja_2}"
+
+
+    def save(self, *args, **kwargs):
+        if (self.set_1_pareja_1 != '0') and (self.set_2_pareja_1 != '0') and (self.set_3_pareja_1 != '0') and (self.set_1_pareja_2 != '0') and (self.set_2_pareja_2 != '0') and (self.set_3_pareja_2 != '0'):
+            # Establecer ganador
+            juegos_pareja_1 = 0
+            juegos_pareja_2 = 0
+            if self.set_1_pareja_1 == '4':
+                juegos_pareja_1 += 1
+            if self.set_2_pareja_1 == '4':
+                juegos_pareja_1 += 1
+            if self.set_3_pareja_1 == '4':
+                juegos_pareja_1 += 1
+            if self.set_1_pareja_2 == '4':
+                juegos_pareja_2 += 1
+            if self.set_2_pareja_2 == '4':
+                juegos_pareja_2 += 1
+            if self.set_3_pareja_2 == '4':
+                juegos_pareja_2 += 1
+
+            if juegos_pareja_1 > juegos_pareja_2:
+                self.ganador = self.pareja_1
+                # Actualizar la puntación de la clasificación
+                self.pareja_1.puntuacion_clasificacion += 3
+                self.pareja_2.puntuacion_clasificacion += 1
+            else:
+                self.ganador = self.pareja_2
+                # Actualizar la puntación de la clasificación
+                self.pareja_1.puntuacion_clasificacion += 1
+                self.pareja_2.puntuacion_clasificacion += 3
+
+            self.pareja_1.save()
+            self.pareja_2.save()
+
+        super(Enfrentamiento, self).save(*args, **kwargs)
+        if self.is_roda_enfrentamientos_grupo_jugados(self.ronda, self.pareja_1.grupo):
+            self.crear_siguiente_ronda(self.ronda, self.pareja_1.grupo)
+
+    def is_roda_enfrentamientos_grupo_jugados(self, ronda, grupo):
+        parejas_grupo = Pareja.objects.filter(grupo=grupo)
+        enfrentamientos_parejas = Enfrentamiento.objects.filter(Q(pareja_1__in=parejas_grupo) | Q(pareja_2__in=parejas_grupo), ronda=ronda)
+        for enfrent in enfrentamientos_parejas:
+            # Ver si se jugaron
+            if (enfrent.set_1_pareja_1 == '0') or (enfrent.set_2_pareja_1 == '0') or (enfrent.set_3_pareja_1 == '0') or (enfrent.set_1_pareja_2 == '0') or (enfrent.set_2_pareja_2 == '0') or (enfrent.set_3_pareja_2 == '0'):
+                return False
+
+        return True
+
+    def crear_siguiente_ronda(self, ronda_actual, grupo):
+        if ronda_actual == 0:
+            self.crear_enfrentamientos_cuartos(grupo)
+        elif ronda_actual == 1:
+            self.crear_enfrentamientos_semifinales(grupo)
+        elif ronda_actual == 2:
+            self.crear_enfrentamientos_final(grupo)
+        else:
+            print("Invalido")
+
+    def crear_enfrentamientos_cuartos(self, grupo):
+        parejas_grupo = Pareja.objects.filter(grupo=grupo)
+        if Enfrentamiento.objects.filter(Q(pareja_1__in=parejas_grupo) | Q(pareja_2__in=parejas_grupo), ronda=1).count() <= 0:
+            print("Creando cuartos...")
+            parejas_grupo = list(Pareja.objects.filter(grupo=grupo).order_by('-puntuacion_clasificacion')[:8])
+            parejas_ultima_mitad = parejas_grupo[4:]
+            parejas_ultima_mitad.reverse()
+            for i in range(4):
+                enfrentamiento = Enfrentamiento.objects.create(
+                    campeonato = self.campeonato,
+                    ronda = 1,
+                    pareja_1 = parejas_grupo[i],
+                    pareja_2 = parejas_ultima_mitad[i]
+                )
+                enfrentamiento.save()
+
+    def crear_enfrentamientos_semifinales(self, grupo):
+        pass
+
+    def crear_enfrentamientos_final(self, grupo):
+        pass
