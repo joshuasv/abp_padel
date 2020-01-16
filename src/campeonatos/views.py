@@ -39,11 +39,17 @@ class CampeonatoDetailView(LoginRequiredMixin, DetailView):
         pareja = Pareja.objects.filter(Q(miembro=self.request.user) | Q(capitan=self.request.user)).filter(normativa__in=normativas)
         primera_ronda = Enfrentamiento.objects.filter(Q(pareja_1__in=pareja) | Q(pareja_2__in=pareja)).filter(ronda=0)
         cuartos = Enfrentamiento.objects.filter(Q(pareja_1__in=pareja) | Q(pareja_2__in=pareja)).filter(ronda=1)
+        semis = Enfrentamiento.objects.filter(Q(pareja_1__in=pareja) | Q(pareja_2__in=pareja)).filter(ronda=2)
+        final = Enfrentamiento.objects.filter(Q(pareja_1__in=pareja) | Q(pareja_2__in=pareja)).filter(ronda=3)
         context['normativas'] = normativas
         context['parejas'] = parejas
         context['pareja'] = pareja.first()
         context['primera_ronda'] = primera_ronda
         context['cuartos'] = cuartos
+        context['semis'] = semis
+        context['final'] = final
+
+        print(len(Enfrentamiento.objects.filter(ronda=2)))
 
         return context
 

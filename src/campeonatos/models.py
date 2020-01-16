@@ -1,6 +1,7 @@
 import string
 import itertools
 import datetime
+import random
 
 from django.db import models
 from django.conf import settings
@@ -196,7 +197,6 @@ class Enfrentamiento(models.Model):
             # Ver si se jugaron
             if (enfrent.set_1_pareja_1 == '0') or (enfrent.set_2_pareja_1 == '0') or (enfrent.set_3_pareja_1 == '0') or (enfrent.set_1_pareja_2 == '0') or (enfrent.set_2_pareja_2 == '0') or (enfrent.set_3_pareja_2 == '0'):
                 return False
-
         return True
 
     def crear_siguiente_ronda(self, ronda_actual, grupo):
@@ -226,7 +226,28 @@ class Enfrentamiento(models.Model):
                 enfrentamiento.save()
 
     def crear_enfrentamientos_semifinales(self, grupo):
-        pass
+        parejas_grupo = Pareja.objects.filter(grupo=grupo)
+        if Enfrentamiento.objects.filter(Q(pareja_1__in=parejas_grupo) | Q(pareja_2__in=parejas_grupo), ronda=2).count() <= 0:
+            parejas_grupo = list(Pareja.objects.filter(grupo=grupo).order_by('-puntuacion_clasificacion')[:4])
+            random.shuffle(parejas_grupo)
+            for i in range(0, 3, 2):
+                enfrentamiento = Enfrentamiento.objects.create(
+                    campeonato = self.campeonato,
+                    ronda = 2,
+                    pareja_1 = parejas_grupo[i],
+                    pareja_2 = parejas_grupo[i + 1],
+                )
+                enfrentamiento.save()
 
     def crear_enfrentamientos_final(self, grupo):
-        pass
+        parejas_grupo = Pareja.objects.filter(grupo=grupo)
+        if Enfrentamiento.objects.filter(Q(pareja_1__in=parejas_grupo) | Q(pareja_2__in=parejas_grupo), ronda=3).count() <= 0:
+            parejas_grupo = list(Pareja.objects.filter(grupo=grupo).order_by('-puntuacion_clasificacion')[:2])
+            enfrentamiento = Enfrentamiento.objects.create(
+                campeonato = self.campeonato,
+                ronda = 3,
+                pareja_1 = parejas_grupo[0],
+                pareja_2 = parejas_grupo[1],
+            )
+            enfrentamiento.save()
+            print("Enfrentamiento final hecho")

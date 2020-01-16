@@ -76,6 +76,39 @@
       </div>
     </article>
   {% endif %}
+
+  {% if semis %}
+    <article class="media content-section">
+      <div class="media-body">
+        <h4 class="article-title">Semifinales</h4>
+        <hr/>
+        <p class="article-content">Enfrentamientos</p>
+        {% for enfrent in semis %}
+          <div>
+            <a class="btn btn-outline-info float-right" href="{% url 'enfrentamiento-detail' enfrent.id %}">Detalle</a>
+            <p>{{ enfrent.pareja_1.capitan }} y {{ enfrent.pareja_1.miembro }} vs. {{ enfrent.pareja_2.capitan }} y {{ enfrent.pareja_2.miembro }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    </article>
+  {% endif %}
+
+  {% if final %}
+    <article class="media content-section">
+      <div class="media-body">
+        <h4 class="article-title">Final</h4>
+        <hr/>
+        <p class="article-content">Enfrentamientos</p>
+        {% for enfrent in final %}
+          <div>
+            <a class="btn btn-outline-info float-right" href="{% url 'enfrentamiento-detail' enfrent.id %}">Detalle</a>
+            <p>{{ enfrent.pareja_1.capitan }} y {{ enfrent.pareja_1.miembro }} vs. {{ enfrent.pareja_2.capitan }} y {{ enfrent.pareja_2.miembro }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    </article>
+  {% endif %}
+
 {% endif %}
 
 
