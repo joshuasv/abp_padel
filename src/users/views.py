@@ -46,6 +46,26 @@ def profile_view(request):
     }
     return render(request, 'users/profile.html', context)
 
+@login_required
+def inscripcion_view(request):
+    if request.method == 'POST':
+        request.user.socio = True
+        request.user.save()
+        messages.success(request, 'Pago hecho correctamente! Eres socio!')
+        return redirect('users-profile')
+
+    return render(request, 'users/inscripcion.html', {})
+
+@login_required
+def desinscripcion_view(request):
+    if request.user.socio:
+        request.user.socio = False
+        request.user.save()
+        messages.success(request, 'Se ha cancelado tu suscripción correctamente!')
+        return redirect('users-profile')
+        
+    messages.success(request, 'No eres socio!')
+    return render(request, 'users/inscripcion.html', {})
 
 class LoginView(LoginView):
 

@@ -12,6 +12,8 @@ class User(AbstractUser):
     email = models.EmailField(blank=False, unique=True)
     sex = models.CharField(max_length=1, choices=SEX_CHOICES)
     dni = models.CharField(max_length=9, unique=True)
+    socio = models.BooleanField(default=False)
+    
 
     def clean(self, *args, **kwargs):
         if not self.validate_dni(self.dni):

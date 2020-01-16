@@ -1,0 +1,61 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+
+<div class="content-section">
+  <div class="media">
+    <div class="media-body">
+      {% if not user.socio %}
+        <h2 class="account-heading">Cuota socio 25€/mes</h2>
+        <form method="POST">
+          {% csrf_token %}
+          <p class="text-secondary">Métodos de pago</p>
+          <div class="dropdown">
+            <select class="btn" name="metodos-pago" required=true>
+              <option value="metalico">Metálico</option>
+              <option value="tarjeta">Tarjeta</option>
+              <option value="paypal">Paypal</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-outline-info float-right">Pagar</button>
+        </form>
+      {% else %}
+      <h2>¿Seguro que quieres cancelar la suscripción?</h2>
+      <a class="btn btn-outline-danger" href="{% url 'users-desinscripcion' %}">Si, Desinscribirme</a>
+      <a class="btn btn-outline-secondary" href="{% url 'users-profile' %}">Cancelar</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+
+  $(document).ready(function(){
+    metodo_id = $('select').val()
+    console.log(metodo_id)
+  })
+
+  $('select').on('change', function() {
+    metodo_id = this.value
+    console.log(metodo_id)
+
+    if(metodo_id == 'tarjeta')
+    {
+      var test = document.getElementById('contenido')
+      console.log(test)
+
+      test.innerHTML +=
+      "<div class=\"content-section\">" +
+        "<p class=\"text-secondary\">Número tarjeta</p>" +
+        "<input type=\"number\" name=\"numero-tarjeta\">" +
+        "<p class=\"text-secondary\">AA/MM</p>" +
+        "<input type=\"number\" name=\"mes-ano-tarjeta\">" +
+        "<p class=\"text-secondary\">CVC</p>" +
+        "<input type=\"number\" name=\"cvc-tarjeta\">" +
+      "</div>"
+    }
+  });
+
+</script>
+
+{% endblock %}

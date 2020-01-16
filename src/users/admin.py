@@ -13,7 +13,7 @@ class MyUserAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email', 'sex', 'dni')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email', 'sex', 'dni', 'socio')}),
     )
 
     inlines = [ProfileInline]

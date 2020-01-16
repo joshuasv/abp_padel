@@ -8,6 +8,13 @@
       <div class="media-body">
         <h2 class="account-heading">{{ user.username }}</h2>
         <p class="text-secondary">{{ user.email }}</p>
+        {% if user.socio %}
+          <p class="text-secondary">Socio</p>
+          <a class="btn btn-danger float-right" href="{% url 'users-inscripcion' %}">Cancelar suscripción</a>
+        {% else %}
+        <p class="text-secondary">No socio</p>
+        <a class="btn btn-info float-right" href="{% url 'users-inscripcion' %}">Hacerse socio</a>
+        {% endif %}
       </div>
     </div>
     <form method="POST" enctype="multipart/form-data"> {% csrf_token %}

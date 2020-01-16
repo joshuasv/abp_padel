@@ -18,7 +18,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path, include
 
-from users.views import signup_view, profile_view, LoginView, LogoutView
+from users.views import signup_view, profile_view, LoginView, LogoutView, inscripcion_view, desinscripcion_view
 
 
 urlpatterns = [
@@ -28,6 +28,8 @@ urlpatterns = [
     path('login/', LoginView.as_view(template_name='users/login.html'), name='users-login'),
     path('logout/', LogoutView.as_view(template_name='users/logout.html'), name='users-logout'),
     path('profile/', profile_view, name='users-profile'),
+    path('inscripcion/', inscripcion_view, name='users-inscripcion'),
+    path('desinscripcion/', desinscripcion_view, name='users-desinscripcion'),
     path('pista/', include('pistas.urls')),
     path('reserva/', include('reservas.urls')),
     path('campeonato/', include('campeonatos.urls')),
