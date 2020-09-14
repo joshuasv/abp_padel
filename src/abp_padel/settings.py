@@ -150,5 +150,5 @@ MESSAGE_TAGS = {
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
-EMAIL_HOST_USER = 'abp.test.19.20@gmail.com'
-EMAIL_HOST_PASSWORD = 'QCMs7AKvAyPmQAhh'
+EMAIL_HOST_USER = 'xxxx@gmail.com'
+EMAIL_HOST_PASSWORD = 'xxxx'
